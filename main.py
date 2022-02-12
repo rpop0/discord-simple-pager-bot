@@ -15,7 +15,7 @@ from database_managers.pager_manager import PagerManager
 from utils.embeds import INIT_MESSAGE_EMBED
 
 intents = discord.Intents.all()
-guild_id = 941703827931922462
+guild_id = os.getenv('GUILD_ID')
 
 
 class Bot(commands.Bot, ABC):
