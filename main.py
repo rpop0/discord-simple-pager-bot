@@ -7,6 +7,7 @@ from discord.commands import ApplicationContext
 from discord.commands import Option
 from discord.commands import permissions
 from discord.ext import commands
+from dotenv import load_dotenv
 
 from views.role_views import AddRoleButton
 from views.pager_views import PagerButtonsView
@@ -99,4 +100,5 @@ def main():
 
 
 if __name__ == '__main__':
+    load_dotenv('.env')
     main()
