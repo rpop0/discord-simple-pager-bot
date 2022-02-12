@@ -2,7 +2,7 @@ from datetime import datetime
 
 import discord
 
-from utils.embeds import ROLE_DELETION_EMBED, ROLE_ADDITION_EMBED, ROLE_QUEUE_EMBED
+from utils.embeds import ROLE_DELETION_EMBED, ROLE_ADDITION_EMBED
 
 
 class AddRoleButton(discord.ui.View):
@@ -17,7 +17,8 @@ class AddRoleButton(discord.ui.View):
 
     @discord.ui.button(label="➖ Scoate un rol", style=discord.ButtonStyle.red)
     async def show_role_deletion(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.send_message(" ", embed=ROLE_DELETION_EMBED, ephemeral=True)
+        remove_role_view = await RemoveRoleDropdownView.create(self.bot)
+        await interaction.response.send_message(" ", embed=ROLE_DELETION_EMBED, view=remove_role_view, ephemeral=True)
 
 
 class ApproveRoleButton(discord.ui.View):
@@ -63,12 +64,52 @@ class AddRoleDropdown(discord.ui.Select):
             await interaction.response.send_message(f"Ai deja rolul **{role_name}**. Pentru a scoate acest rol, "
                                                     f"foloseste butonul **Scoate un rol**", ephemeral=True)
             return
+
         channel = discord.utils.get(interaction.guild.channels, name=f"{role_name.lower()}-queue")
-        ROLE_QUEUE_EMBED.add_field(name="Nume ", value=f"{interaction.user.name}", inline=False)
-        ROLE_QUEUE_EMBED.add_field(name="Data", value=f"{datetime.now().strftime('%m/%b/%Y, %H:%M:%S')}", inline=False)
-        await channel.send(" ", embed=ROLE_QUEUE_EMBED, view=ApproveRoleButton(interaction, self.values[0]))
+        embed = discord.Embed(title=" ", description="Cerere primita pentru acordarea unui rol asupra unui membru al "
+                                                     "facțiunii.", color=0xb8b8b8)
+        embed.set_author(name="Cerere Rol", icon_url="https://media.discordapp.net/attachments/941661421744291873"
+                                                     "/941665577238421544/DISPATCH_CENTER.png")
+        embed.set_footer(text="Pentru a accepta sau respinge o cerere, folosește unul dintre butoanele de mai jos.")
+
+        embed.add_field(name="Nume ", value=f"{interaction.user.name}", inline=False)
+        embed.add_field(name="Data", value=f"{datetime.now().strftime('%m/%b/%Y, %H:%M:%S')}", inline=False)
+        await channel.send(" ", embed=embed, view=ApproveRoleButton(interaction, self.values[0]))
         await interaction.response.send_message(f"Cererea ta a fost trimisă către {self.values[0]} Command. Așteaptă "
                                                 f"un răspuns.", ephemeral=True)
+
+
+class RemoveRoleDropdown(discord.ui.Select):
+    def __init__(self, options, bot):
+        super().__init__(options=options)
+        self.bot = bot
+
+    @classmethod
+    async def create(cls, bot):
+        role_list = bot.role_list
+        options = list()
+        for role in role_list:
+            options.append(discord.SelectOption(label=role['role_name'], emoji=role['role_emoji']))
+        return RemoveRoleDropdown(options, bot)
+
+    async def callback(self, interaction: discord.Interaction):
+        role = discord.utils.get(interaction.guild.roles, name=self.values[0])
+        if role not in interaction.user.roles:
+            await interaction.response.send_message(f"Nu ai rolul {role.name}. ", ephemeral=True)
+            return
+        await interaction.user.remove_roles(role)
+        await interaction.response.send_message(f"Ti-ai scos rolul {role.name}.", ephemeral=True)
+
+
+class RemoveRoleDropdownView(discord.ui.View):
+    def __init(self, dropdown):
+        super().__init__()
+        self.add_item(dropdown)
+
+    @classmethod
+    async def create(cls, bot):
+        dropdown = await RemoveRoleDropdown.create(bot)
+        return RemoveRoleDropdownView(dropdown)
 
 
 class AddRoleDropdownView(discord.ui.View):

@@ -29,14 +29,3 @@ ROLE_ADDITION_EMBED.set_author(name="Selectare rol", icon_url="https://media.dis
                                                               "/941661421744291873/941665577238421544/DISPATCH_CENTER"
                                                               ".png?width=676&height=676")
 ROLE_ADDITION_EMBED.set_footer(text="Pentru a anula cererea, folosiți butonul Dismiss Message.")
-
-# Embed for the role queue
-ROLE_QUEUE_EMBED = discord.Embed(title=" ", description="Cerere primita pentru acordarea unui rol asupra unui membru "
-                                                        "al facțiunii.", color=0xb8b8b8)
-ROLE_QUEUE_EMBED.set_author(name="Cerere Rol", icon_url="https://media.discordapp.net/attachments/941661421744291873"
-                                                        "/941665577238421544/DISPATCH_CENTER.png")
-ROLE_QUEUE_EMBED.set_footer(text="Pentru a accepta sau respinge o cerere, folosește unul dintre butoanele de mai jos.")
-
-# Responders embed.
-RESPONDERS_EMBED = discord.Embed(title=" ", color=0x232323)
-RESPONDERS_EMBED.set_author(name="Participanți")
