@@ -16,6 +16,9 @@ class Bot(commands.Bot, ABC):
         self.role_list = None
         self.cog_list = self.get_cog_list()
 
+    def get_roles_as_name_list(self):
+        return [role['role_name'] for role in self.role_list]
+
     def get_channel_on_guild(self, channel_name):
         channel_guild = discord.utils.get(self.get_all_channels(), name=channel_name).guild
         channel_id = discord.utils.get(self.get_all_channels(), name=channel_name).id
@@ -39,14 +42,15 @@ class Bot(commands.Bot, ABC):
             self.load_extension(f'cogs.{cog}')
 
     async def send_role_message(self):
-        embed = discord.Embed(title=" ", color=0x0042aa)
-        embed.set_author(name="Los Santos Dispatch Role Menu",
-                         icon_url="https://cdn.discordapp.com/attachments/941661421744291873/941665577238421544"
-                                  "/DISPATCH_CENTER.png")
-        embed.add_field(name="--------",
-                        value="Welcome to the role menu! Would you like to request a role or would you like to remove "
-                              "your existing faction roles?",
-                        inline=False)
+        embed = discord.Embed(title="Role Request",
+                              description="A se folosi doar pentru obținerea rolului facțiunii din care faci parte. ",
+                              color=0x0042aa)
+        embed.set_author(name="Dispatch Center",
+                         icon_url="https://media.discordapp.net/attachments/941661421744291873/941665577238421544/DISPATCH_CENTER.png")
+        embed.add_field(
+            name="Pentru ca acest Dispatch să funcționeze corect, fiecare membru al unei facțiuni legale (LSPD; LSFD; JSA; CITY) va trebui să primească rolul aferent facțiunii din care face parte.",
+            value="-----------------", inline=True)
+        embed.set_footer(text="Pentru a cere un rol, folosește butonul verde afișat mai jos.")
         ctx = self.get_channel_on_guild("role-request")
 
         await ctx.purge()
@@ -66,7 +70,6 @@ class Bot(commands.Bot, ABC):
 
 def main():
     bot = Bot()
-
     bot.run(os.getenv('BOT_TOKEN'))
 
 

@@ -24,14 +24,14 @@ class ApproveRoleButton(discord.ui.View):
         self.requester_interaction = requester_interaction
         self.role = discord.utils.get(requester_interaction.guild.roles, name=role)
 
-    @discord.ui.button(label="Accepta cerere", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Accepta cererea", style=discord.ButtonStyle.green)
     async def approve_role(self, button: discord.ui.Button, interaction: discord.Interaction):
         await self.requester_interaction.user.add_roles(self.role)
         await interaction.response.send_message("Cerere acceptata.")
         await interaction.message.edit(view=None)
         self.stop()
 
-    @discord.ui.button(label="Respinge cerere", style=discord.ButtonStyle.red)
+    @discord.ui.button(label="Respinge cererea", style=discord.ButtonStyle.red)
     async def deny_role(self, button: discord.ui.Button, interaction: discord.Interaction):
         await interaction.response.send_message("Cerere respinsa.")
         await interaction.message.edit(view=None)
@@ -53,6 +53,10 @@ class AddRoleDropdown(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         role_name = self.values[0]
+        if discord.utils.get(interaction.user.roles, name=role_name):
+            await interaction.response.send_message(f"Ai deja rolul **{role_name}**. Pentru a scoate acest rol, "
+                                                    f"foloseste butonul **Scoate un rol**", ephemeral=True)
+            return
         channel = discord.utils.get(interaction.guild.channels, name=f"{role_name.lower()}-queue")
         msg = f"""**[CERERE ROL]**
         Userul {interaction.user} a cerut rolul {self.values[0]}.
