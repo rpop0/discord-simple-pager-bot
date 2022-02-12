@@ -5,25 +5,20 @@ from discord.commands import slash_command
 from discord.commands import ApplicationContext
 from discord.ext import commands
 from discord.commands import Option
+from discord.commands import permissions
 
 from database_managers.pager_manager import PagerManager
+from views.pager_views import PagerButtonsView
 
 guild_id = 941703827931922462
-
-def get_role_name_list():
 
 
 class Pager(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        global role_name_list
-        role_name_list = self.bot.get_roles_as_name_list()
-
-    @slash_command(name="hi", description="Hi", guild_ids=[guild_id])
-    async def hi(self, ctx: ApplicationContext) -> None:
-        await ctx.send_response("test")
 
     @slash_command(name="add-role", description="Adds a role to the pager.", guild_ids=[guild_id])
+    @permissions.has_role("Admin")
     async def add_role_to_pager(self, ctx: ApplicationContext, role_id: Option(str, "Enter the ID of the role."),
                                 leader_role_id: Option(str, "Enter the ID of the leader role")) -> None:
         if role_id is None or leader_role_id is None:
@@ -48,20 +43,23 @@ class Pager(commands.Cog):
 
         # Updates the bot role list and updates the internal list.
         await self.bot.update_role_list()
-        global role_name_list
-        role_name_list = self.bot.get_roles_as_name_list()
 
         msg = f"Role {role_normal.name} has been added, with leader role {leader_role}."
         await ctx.send_followup(msg)
 
+    def role_name_helper(self):
+        return self.bot.get_roles_as_name_list()
+
     @slash_command(name="pager", description="Cere o unitate.", guild_ids=[guild_id])
-    async def pager(self, ctx: ApplicationContext, unit: Option(str, "Unitati cerute.", choices=role_name_list),
+    async def pager(self, ctx: ApplicationContext, unit: Option(str, "Unitati cerute.", autocomplete=role_name_helper),
                     location: Option(str, "Locatia incidentului."), details: Option(str, "Detalii despre incident.")):
         # Pager message
-        msg = f"**—PAGER REQUEST—**\n\n **INFO:** {details}\n **DE LA:** <@{ctx.user.id}>\n **CĂTRE:** <@&{unit}>\n" \
-              f" **LOCAȚIE:** {location}\n **STATUS:** ACTIV\n\n**DA" \
-              f"TA:** {datetime.now().strftime('%m/%b/%Y, %H:%M:%S')}\n**—PAGER REQUEST—** "
-        await ctx.send_response(msg)
+        role_id = discord.utils.get(ctx.guild.roles, name=unit).id
+        msg = f"**—PAGER REQUEST—**\n\n**INFO:** {details}\n**DE LA:** <@{ctx.user.id}>\n**CĂTRE:**" \
+              f" <@&{role_id}>\n**LOCAȚIE:** {location}\n**STATUS:** ACTIV\n\n**DATA:**" \
+              f" {datetime.now().strftime('%m/%b/%Y, %H:%M:%S')}\n**—PAGER REQUEST—** "
+        await ctx.send(msg, view=PagerButtonsView())
+        await ctx.delete()
 
 
 def setup(bot):

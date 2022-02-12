@@ -6,6 +6,7 @@ from discord.ext import commands
 
 from views.role_views import AddRoleButton
 from database_managers.pager_manager import PagerManager
+from utils.embeds import INIT_MESSAGE_EMBED
 
 intents = discord.Intents.all()
 
@@ -42,20 +43,11 @@ class Bot(commands.Bot, ABC):
             self.load_extension(f'cogs.{cog}')
 
     async def send_role_message(self):
-        embed = discord.Embed(title="Role Request",
-                              description="A se folosi doar pentru obținerea rolului facțiunii din care faci parte. ",
-                              color=0x0042aa)
-        embed.set_author(name="Dispatch Center",
-                         icon_url="https://media.discordapp.net/attachments/941661421744291873/941665577238421544/DISPATCH_CENTER.png")
-        embed.add_field(
-            name="Pentru ca acest Dispatch să funcționeze corect, fiecare membru al unei facțiuni legale (LSPD; LSFD; JSA; CITY) va trebui să primească rolul aferent facțiunii din care face parte.",
-            value="-----------------", inline=True)
-        embed.set_footer(text="Pentru a cere un rol, folosește butonul verde afișat mai jos.")
         ctx = self.get_channel_on_guild("role-request")
 
         await ctx.purge()
         view = AddRoleButton(self)
-        await ctx.send(embed=embed, view=view)
+        await ctx.send(embed=INIT_MESSAGE_EMBED, view=view)
 
     async def update_role_list(self):
         async with PagerManager() as pm:

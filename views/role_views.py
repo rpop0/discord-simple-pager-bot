@@ -2,6 +2,8 @@ from datetime import datetime
 
 import discord
 
+from utils.embeds import ROLE_DELETION_EMBED, ROLE_ADDITION_EMBED, ROLE_QUEUE_EMBED
+
 
 class AddRoleButton(discord.ui.View):
     def __init__(self, bot):
@@ -11,11 +13,11 @@ class AddRoleButton(discord.ui.View):
     @discord.ui.button(label="➕ Cere un rol", style=discord.ButtonStyle.green)
     async def show_role_selection(self, button: discord.ui.Button, interaction: discord.Interaction):
         role_dropdown_view = await AddRoleDropdownView.create(self.bot)
-        await interaction.response.send_message("Cere rol", view=role_dropdown_view, ephemeral=True)
+        await interaction.response.send_message(" ", embed=ROLE_ADDITION_EMBED, view=role_dropdown_view, ephemeral=True)
 
     @discord.ui.button(label="➖ Scoate un rol", style=discord.ButtonStyle.red)
     async def show_role_deletion(self, button: discord.ui.Button, interaction: discord.Interaction):
-        pass
+        await interaction.response.send_message(" ", embed=ROLE_DELETION_EMBED, ephemeral=True)
 
 
 class ApproveRoleButton(discord.ui.View):
@@ -27,13 +29,17 @@ class ApproveRoleButton(discord.ui.View):
     @discord.ui.button(label="Accepta cererea", style=discord.ButtonStyle.green)
     async def approve_role(self, button: discord.ui.Button, interaction: discord.Interaction):
         await self.requester_interaction.user.add_roles(self.role)
-        await interaction.response.send_message("Cerere acceptata.")
+        msg = f"**[CERERE ACCEPTATA]** Cererea a fost aceptata de <@{interaction.user.id}> la" \
+              f" {datetime.now().strftime('%m/%b/%Y, %H:%M:%S')}"
+        await interaction.response.send_message(msg)
         await interaction.message.edit(view=None)
         self.stop()
 
     @discord.ui.button(label="Respinge cererea", style=discord.ButtonStyle.red)
     async def deny_role(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.send_message("Cerere respinsa.")
+        msg = f"**[CERERE RESPINSA]** Cererea a fost respinsa de <@{interaction.user.id}> la" \
+              f" {datetime.now().strftime('%m/%b/%Y, %H:%M:%S')}"
+        await interaction.response.send_message(msg)
         await interaction.message.edit(view=None)
         self.stop()
 
@@ -58,12 +64,11 @@ class AddRoleDropdown(discord.ui.Select):
                                                     f"foloseste butonul **Scoate un rol**", ephemeral=True)
             return
         channel = discord.utils.get(interaction.guild.channels, name=f"{role_name.lower()}-queue")
-        msg = f"""**[CERERE ROL]**
-        Userul {interaction.user} a cerut rolul {self.values[0]}.
-        Data: {datetime.now().strftime("%m/%b/%Y, %H:%M:%S")}
-        """
-        await channel.send(msg, view=ApproveRoleButton(interaction, self.values[0]))
-        await interaction.response.send_message(f"{self.values[0]}", ephemeral=True)
+        ROLE_QUEUE_EMBED.add_field(name="Nume ", value=f"{interaction.user.name}", inline=False)
+        ROLE_QUEUE_EMBED.add_field(name="Data", value=f"{datetime.now().strftime('%m/%b/%Y, %H:%M:%S')}", inline=False)
+        await channel.send(" ", embed=ROLE_QUEUE_EMBED, view=ApproveRoleButton(interaction, self.values[0]))
+        await interaction.response.send_message(f"Cererea ta a fost trimisă către {self.values[0]} Command. Așteaptă "
+                                                f"un răspuns.", ephemeral=True)
 
 
 class AddRoleDropdownView(discord.ui.View):
