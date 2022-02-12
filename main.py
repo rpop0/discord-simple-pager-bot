@@ -16,7 +16,7 @@ from utils.embeds import INIT_MESSAGE_EMBED
 
 load_dotenv('.env')
 intents = discord.Intents.all()
-guild_id = os.getenv('GUILD_ID')
+guild_id = int(os.getenv('GUILD_ID'))
 
 
 class Bot(commands.Bot, ABC):
