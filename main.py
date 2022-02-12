@@ -14,6 +14,7 @@ from views.pager_views import PagerButtonsView
 from database_managers.pager_manager import PagerManager
 from utils.embeds import INIT_MESSAGE_EMBED
 
+load_dotenv('.env')
 intents = discord.Intents.all()
 guild_id = os.getenv('GUILD_ID')
 
@@ -100,5 +101,4 @@ def main():
 
 
 if __name__ == '__main__':
-    load_dotenv('.env')
     main()
