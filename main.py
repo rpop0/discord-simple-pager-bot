@@ -7,16 +7,13 @@ from discord.commands import ApplicationContext
 from discord.commands import Option
 from discord.commands import permissions
 from discord.ext import commands
-from dotenv import load_dotenv
 
 from views.role_views import AddRoleButton
 from views.pager_views import PagerButtonsView
 from database_managers.pager_manager import PagerManager
 from utils.embeds import INIT_MESSAGE_EMBED
 
-load_dotenv('.env')
 intents = discord.Intents.all()
-guild_id = int(os.getenv('GUILD_ID'))
 
 
 class Bot(commands.Bot, ABC):
@@ -51,6 +48,7 @@ class Bot(commands.Bot, ABC):
 
 def main():
     bot = Bot()
+    guild_id = int(os.getenv('GUILD_ID'))
 
     @bot.slash_command(name="add-role", default_permission=False, description="Adds a role to the pager.",
                        guild_ids=[guild_id])
