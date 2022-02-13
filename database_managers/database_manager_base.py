@@ -7,8 +7,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 class DatabaseManagerBase:
     def __init__(self):
         self.ca = certifi.where()
-        database = os.getenv("DISPATCH_DB_NAME")
-        self.client = AsyncIOMotorClient(os.getenv("DISPATCH_DB_CONN"), tlsCAFile=self.ca)
+        database = os.getenv("PAGER_DB_NAME")
+        self.client = AsyncIOMotorClient(os.getenv("PAGER_DB_CONN"), tlsCAFile=self.ca)
         self.db = self.client[database]
 
     async def __aenter__(self):
