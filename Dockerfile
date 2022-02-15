@@ -20,8 +20,11 @@ FROM ubuntu:20.04 as runner-image
 RUN apt-get update && apt-get install --no-install-recommends -y python3 python3-venv && \
 	apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN useradd docker-user
 
 COPY --from=builder-image /app/venv /app/venv
+
+USER docker-user
 
 WORKDIR /app
 
